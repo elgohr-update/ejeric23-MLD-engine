@@ -15,12 +15,13 @@ import {
 import { Constants, Types } from '@tosios/common';
 import React, { Component, Fragment } from 'react';
 import { RouteComponentProps, navigate } from '@reach/router';
-import { playerImage, titleImage } from '../images';
+import { dinoImage, mldImage } from '../images';
 import { Client } from 'colyseus.js';
 import { Helmet } from 'react-helmet';
 import { RoomAvailable } from 'colyseus.js/lib/Room';
 import qs from 'querystringify';
 import { useAnalytics } from '../hooks';
+import Wallet from '../components/Header';
 
 const MapsList: IListItem[] = Constants.MAPS_NAMES.map((value) => ({
     value,
@@ -199,11 +200,9 @@ export default class Home extends Component<IProps, IState> {
                         maxWidth: '100%',
                     }}
                 >
-                    <img alt="TOSIOS" src={titleImage} />
-                    <Space size="xs" />
-                    <Text style={{ color: 'white', fontSize: 13 }}>
-                        An open-source multiplayer game in the browser meant to be hostable, modifiable, and playable by
-                        anyone.
+                    <img alt="TOSIOS" src={mldImage} width={300}/>
+                    <Text style={{ color: 'white', fontSize: 13, flex: 'auto' }}>
+                        A multiplayer blockchain game powered by Harmony meant to be playable by anyone and build a community.
                     </Text>
                     <Space size="xxs" />
                 </View>
@@ -211,7 +210,7 @@ export default class Home extends Component<IProps, IState> {
                 <Space size="m" />
                 {this.renderName()}
                 <Space size="m" />
-                {this.renderRoom()}
+                {/* {this.renderRoom()} */}
                 <Space size="m" />
                 <GitHub />
             </View>
@@ -227,17 +226,18 @@ export default class Home extends Component<IProps, IState> {
                 }}
             >
                 <View flex>
-                    <img src={playerImage} alt="player" width={30} />
+                    <img src={dinoImage} alt="player" width={30} />
                     <Inline size="thin" />
                     <Text>Pick your name:</Text>
                 </View>
-                <Space size="xs" />
-                <Input
+                {/* <Space size="xs" /> */}
+                <Wallet />
+                {/* <Input
                     value={this.state.playerName}
                     placeholder="Name"
                     maxLength={Constants.PLAYER_NAME_MAX}
                     onChange={this.handlePlayerNameChange}
-                />
+                /> */}
                 {this.state.hasNameChanged && (
                     <>
                         <Space size="xs" />
@@ -278,13 +278,13 @@ export default class Home extends Component<IProps, IState> {
                     flexDirection: 'column',
                 }}
             >
-                {!isNewRoom && (
+                {/* {!isNewRoom && (
                     <Button
                         title="Create new room"
                         text="+ New Room"
                         onClick={() => this.setState({ isNewRoom: true })}
                     />
-                )}
+                )} */}
                 {isNewRoom && (
                     <View style={{ width: '100%' }}>
                         {/* Name */}
