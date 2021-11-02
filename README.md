@@ -7,11 +7,9 @@ The Open-Source IO Shooter is an open-source multiplayer game in the browser (de
 
 **Desktop version**
 
-![banner](images/banner.jpg "In-game screenshot of desktop")
 
 **Mobile version**
 
-<img src="images/mobile.jpg" alt="In-game screenshot of mobile" width="400"/>
 
 ## 🕹️ Playing
 
