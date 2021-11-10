@@ -1,4 +1,4 @@
-<img src="packages/client/src/images/mld.png" />
+<img src="packages/client/src/images/mld.png" center/>
 @asp2131
 asp2131 mld initial ui
 
