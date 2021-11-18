@@ -32,6 +32,7 @@ const Account = () => {
 
     const openModal = () => {
         setModalIsOpen(true);
+        console.log('Account: ', account);
     };
 
     const closeModal = () => {
@@ -40,16 +41,6 @@ const Account = () => {
 
     return (
         <>
-            <AccountComponent onClick={openModal}>
-                {parsedAccount ? (
-                    <span>
-                        {'Wallet: ' + parsedAccount.substring(0, 6)}...
-                        {parsedAccount.substring(parsedAccount.length - 4)}
-                    </span>
-                ) : (
-                    <Button onClick={openModal}>Connect your wallet</Button>
-                )}
-            </AccountComponent>
             <Modal
                 isOpen={modalIsOpen}
                 className="Modal"
@@ -63,6 +54,16 @@ const Account = () => {
                     <Wallets closeModal={closeModal} />
                 )}
             </Modal>
+            <AccountComponent onClick={openModal}>
+                {parsedAccount ? (
+                    <span>
+                        {'Wallet: ' + parsedAccount.substring(0, 6)}...
+                        {parsedAccount.substring(parsedAccount.length - 4)}
+                    </span>
+                ) : (
+                    <Button onClick={openModal}>Connect your wallet</Button>
+                )}
+            </AccountComponent>
         </>
     );
 };

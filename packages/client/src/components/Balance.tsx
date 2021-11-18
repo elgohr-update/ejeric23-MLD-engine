@@ -12,7 +12,6 @@ function Balance() {
         if (!!account && !!library) {
             let stale = false;
             const accountArgs = isHmyLibrary ? { address: toBech32(account) } : account;
-
             library
                 .getBalance(accountArgs)
                 .then((balance: any) => {
@@ -35,14 +34,14 @@ function Balance() {
                 setBalance(undefined);
             };
         }
-    }, [account, library, chainId]); // ensures refresh if referential identity of library doesn't change across chainIds
+    }, [account, library, chainId, isHmyLibrary]); // ensures refresh if referential identity of library doesn't change across chainIds
 
     return (
         <BalanceComponent>
-            <span>Balance</span>
-            <span role="img" aria-label="gold">
-                💰
-            </span>
+            <span>Balance: </span>
+            {/* <span role="img" aria-label="gold">
+                
+            </span> */}
             <span>{balance === null ? 'Error' : balance ? (isHmyLibrary ? balance : `${balance} ONE`) : ''}</span>
         </BalanceComponent>
     );
@@ -52,10 +51,14 @@ const BalanceComponent = styled.div`
     padding: 10px 20px;
     border-radius: 25px;
     background-color: white;
+    opacity: 0.7;
+    box-shadow: 1px 2px 4px 4px rgba(0, 0, 0, 0.25);
     color: black;
-
-    & > span {
-        margin-left: 4px;
+    transition: opacity 0.3s ease, box-shadow 0.25s ease-in-out;
+    &:hover {
+        opacity: 1;
+        box-shadow: 1px 2px 2px 2px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
     }
 `;
 

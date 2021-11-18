@@ -18,10 +18,11 @@ import { RouteComponentProps, navigate } from '@reach/router';
 import { dinoImage, mldImage } from '../images';
 import { Client } from 'colyseus.js';
 import { Helmet } from 'react-helmet';
+import Nav from '../components/Navbar';
 import { RoomAvailable } from 'colyseus.js/lib/Room';
+import Wallet from '../components/Wallet';
 import qs from 'querystringify';
 import { useAnalytics } from '../hooks';
-import Wallet from '../components/Header';
 
 const MapsList: IListItem[] = Constants.MAPS_NAMES.map((value) => ({
     value,
@@ -50,6 +51,7 @@ interface IState {
     mode: any;
     rooms: Array<RoomAvailable<any>>;
     timer: NodeJS.Timeout | null;
+    walletLogged: boolean;
 }
 
 export default class Home extends Component<IProps, IState> {
@@ -68,6 +70,7 @@ export default class Home extends Component<IProps, IState> {
             mode: GameModesList[0].value,
             rooms: [],
             timer: null,
+            walletLogged: false,
         };
     }
 
@@ -183,6 +186,7 @@ export default class Home extends Component<IProps, IState> {
                     flexDirection: 'column',
                 }}
             >
+                <Nav />
                 <Helmet>
                     <title>{`${Constants.APP_TITLE} - Home`}</title>
                     <meta
@@ -200,9 +204,10 @@ export default class Home extends Component<IProps, IState> {
                         maxWidth: '100%',
                     }}
                 >
-                    <img alt="TOSIOS" src={mldImage} width={300}/>
+                    <img alt="TOSIOS" src={mldImage} width={300} />
                     <Text style={{ color: 'white', fontSize: 13, flex: 'auto' }}>
-                        A multiplayer blockchain game powered by Harmony meant to be playable by anyone and build a community.
+                        A multiplayer blockchain game powered by Harmony meant to be playable by anyone and build a
+                        community.
                     </Text>
                     <Space size="xxs" />
                 </View>
@@ -210,7 +215,7 @@ export default class Home extends Component<IProps, IState> {
                 <Space size="m" />
                 {this.renderName()}
                 <Space size="m" />
-                {/* {this.renderRoom()} */}
+                {this.renderRoom()}
                 <Space size="m" />
                 <GitHub />
             </View>
@@ -228,16 +233,15 @@ export default class Home extends Component<IProps, IState> {
                 <View flex>
                     <img src={dinoImage} alt="player" width={30} />
                     <Inline size="thin" />
-                    <Text>Pick your name:</Text>
+                    {/* <Text>Pick your name:</Text> */}
                 </View>
                 {/* <Space size="xs" /> */}
-                <Wallet />
-                {/* <Input
+                <Input
                     value={this.state.playerName}
                     placeholder="Name"
                     maxLength={Constants.PLAYER_NAME_MAX}
                     onChange={this.handlePlayerNameChange}
-                /> */}
+                />
                 {this.state.hasNameChanged && (
                     <>
                         <Space size="xs" />
@@ -278,13 +282,13 @@ export default class Home extends Component<IProps, IState> {
                     flexDirection: 'column',
                 }}
             >
-                {/* {!isNewRoom && (
+                {!isNewRoom && (
                     <Button
                         title="Create new room"
                         text="+ New Room"
                         onClick={() => this.setState({ isNewRoom: true })}
                     />
-                )} */}
+                )}
                 {isNewRoom && (
                     <View style={{ width: '100%' }}>
                         {/* Name */}
