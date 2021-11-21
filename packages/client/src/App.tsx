@@ -1,11 +1,33 @@
 import { LocationProvider, Router } from '@reach/router';
+import Gun from 'gun';
 import Home from './scenes/Home';
 import Match from './scenes/Match';
 import React from 'react';
 import { useAnalytics } from './hooks';
 import { useLocation } from '@reach/router';
 
+const gun = Gun({
+    peers: ['http://localhost:3030/gun'],
+});
+
+interface IAppState {
+    user: any;
+}
+
+const initialState: IAppState = {
+    user: {},
+};
+
+export function reducer(state: any, user: any) {
+    return {
+        user: [user, ...state.user],
+    };
+}
+
 export default function App(): React.ReactElement {
+    const [account, setAccount] = React.useState('');
+    const [state, dispatch] = React.useReducer(reducer, initialState);
+
     return (
         <LocationProvider>
             <RootedApp />
@@ -20,7 +42,7 @@ function RootedApp(): React.ReactElement {
     /**
      * Initialize analytics.
      */
-    React.useEffect(() => {
+     React.useEffect(() => {
         analytics.init();
     }, [analytics]);
 
@@ -33,7 +55,7 @@ function RootedApp(): React.ReactElement {
 
     return (
         <Router>
-            <Home default path="/" />
+            <Home gun={gun} default path="/" />
             <Match path="/:roomId" />
         </Router>
     );

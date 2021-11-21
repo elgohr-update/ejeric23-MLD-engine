@@ -24,6 +24,14 @@ import Wallets from './Wallets';
 
 if (process.env.NODE_ENV !== 'test') Modal.setAppElement('#root');
 
+const customStyles = {
+    content: {
+      height: "40%",
+      textAlign: "center"
+    }
+  };
+
+
 const Account = () => {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const { account, active } = useWeb3React();
@@ -44,7 +52,7 @@ const Account = () => {
             <Modal
                 isOpen={modalIsOpen}
                 className="Modal"
-                overlayClassName="Overlay"
+                // overlayClassName="Overlay"
                 onRequestClose={closeModal}
                 shouldCloseOnOverlayClick
             >
