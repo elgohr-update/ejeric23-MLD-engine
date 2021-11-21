@@ -14,7 +14,7 @@ const NavBar = (props: any) => {
         // eslint-disable-next-line react/jsx-props-no-spreading
         <NavBarContainer {...props}>
             <MenuToggle toggle={toggle} isOpen={isOpen} />
-            <MenuLinks isOpen={isOpen} />
+            <MenuLinks account={props.account} active={props.active} isOpen={isOpen} />
         </NavBarContainer>
     );
 };
@@ -55,7 +55,7 @@ const MenuItem = ({ children, isLast, to = '/', ...rest }: any) => {
     );
 };
 
-const MenuLinks = ({ isOpen }: any) => {
+const MenuLinks = ({ isOpen, account, active }: any) => {
     return (
         <Box display={{ base: isOpen ? 'block' : 'none', md: 'block' }} flexBasis={{ base: '100%', md: 'auto' }}>
             <Stack
@@ -65,13 +65,9 @@ const MenuLinks = ({ isOpen }: any) => {
                 direction={['column', 'row', 'row', 'row']}
                 pt={[4, 4, 0, 0]}
             >
-                {/* <MenuItem> */}
-                    <Balance />
-                {/* </MenuItem> */}
-                {/* <MenuItem> */}
-                    <Account />
-                {/* </MenuItem> */}
-                {/* <MenuItem to="/how">How It works </MenuItem>             */}
+                {/* <Balance /> */}
+
+                <Account account={account} active={active} />
             </Stack>
         </Box>
     );

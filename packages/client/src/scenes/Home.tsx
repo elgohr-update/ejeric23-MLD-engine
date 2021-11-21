@@ -23,6 +23,7 @@ import Nav from '../components/Navbar';
 import { RoomAvailable } from 'colyseus.js/lib/Room';
 import qs from 'querystringify';
 import { useAnalytics } from '../hooks';
+import { useWeb3React } from '@web3-react/core';
 
 const MapsList: IListItem[] = Constants.MAPS_NAMES.map((value) => ({
     value,
@@ -41,6 +42,22 @@ const GameModesList: IListItem[] = Constants.GAME_MODES.map((value) => ({
 
 interface IProps extends RouteComponentProps {
     gun: any;
+    dispatch: any;
+    state: any;
+}
+
+interface IAppState {
+    user: any;
+}
+
+const initialState: IAppState = {
+    user: {},
+};
+
+export function reducer(state: any, user: any) {
+    return {
+        user: [user, ...state.user],
+    };
 }
 
 interface IState {
@@ -56,8 +73,8 @@ interface IState {
     walletLogged: boolean;
 }
 
-export default function Home<IProps, IState>(props: IProps): React.ReactElement {
-    const [playerName, setPlayerName] = React.useState(localStorage.getItem('playerName') || '');
+export default function Home<IProps, IState>(props: any): React.ReactElement {
+    const [playerName, setPlayerName] = React.useState(props.state.user.username);
     const [hasNameChanged, setHasNameChanged] = React.useState(false);
     const [isNewRoom, setIsNewRoom] = React.useState(false);
     const [roomName, setRoomName] = React.useState(localStorage.getItem('roomName') || '');
@@ -68,11 +85,12 @@ export default function Home<IProps, IState>(props: IProps): React.ReactElement 
     const [timer, setTimer] = React.useState(null as any);
     const [walletLogged, setWalletLogged] = React.useState(false);
     const [client, setClient] = React.useState(null as any);
+    const { account, active } = useWeb3React();
 
     // BASE
     const updateRooms = async () => {
         if (!client) {
-            return
+            return;
         }
 
         const allRooms = await client.getAvailableRooms(Constants.ROOM_NAME);
@@ -88,17 +106,20 @@ export default function Home<IProps, IState>(props: IProps): React.ReactElement 
             const cli = new Client(url);
             setClient(cli);
 
+            const user = props.gun.get('user')
+            // user
+            console.log(user);
             setTimer(setInterval(updateRooms, Constants.ROOM_REFRESH));
         } catch (error) {
             console.error(error);
         }
-    }, [updateRooms]);
+    }, [setTimer]);
 
     React.useEffect(() => {
         if (timer) {
             clearInterval(timer);
         }
-    });
+    }, [timer, setTimer]);
 
     // HANDLERS
     const handlePlayerNameChange = (event: any) => {
@@ -109,9 +130,14 @@ export default function Home<IProps, IState>(props: IProps): React.ReactElement 
     const handleNameSave = () => {
         const analytics = useAnalytics();
 
-        localStorage.setItem('playerName', playerName);
+        // localStorage.setItem('playerName', playerName);
         setHasNameChanged(false);
-
+        const user = props.gun.get('user');
+        user.set({
+            wallet: account,
+            userName: playerName,
+            createdAt: Date.now(),
+        });
         analytics.track({ category: 'User', action: 'Rename' });
     };
 
@@ -201,6 +227,11 @@ export default function Home<IProps, IState>(props: IProps): React.ReactElement 
                 <Space size="xxs" />
             </Box>
         );
+    };
+
+    const checkGun = () => {
+        const user = props.gun.get('user');
+        console.log(account);
     };
 
     const renderNewRoom = () => {
@@ -340,7 +371,8 @@ export default function Home<IProps, IState>(props: IProps): React.ReactElement 
                 flexDirection: 'column',
             }}
         >
-            <Nav />
+            <Nav account={account} active={active} />
+            {/* <Button title="Check gun" onClick={checkGun} /> */}
             <Helmet>
                 <title>{`${Constants.APP_TITLE} - Home`}</title>
                 <meta

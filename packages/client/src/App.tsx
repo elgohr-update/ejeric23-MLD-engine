@@ -25,9 +25,6 @@ export function reducer(state: any, user: any) {
 }
 
 export default function App(): React.ReactElement {
-    const [account, setAccount] = React.useState('');
-    const [state, dispatch] = React.useReducer(reducer, initialState);
-
     return (
         <LocationProvider>
             <RootedApp />
@@ -38,6 +35,7 @@ export default function App(): React.ReactElement {
 function RootedApp(): React.ReactElement {
     const { pathname } = useLocation();
     const analytics = useAnalytics();
+    const [state, dispatch] = React.useReducer(reducer, initialState);
 
     /**
      * Initialize analytics.
@@ -55,7 +53,7 @@ function RootedApp(): React.ReactElement {
 
     return (
         <Router>
-            <Home gun={gun} default path="/" />
+            <Home state={state} dispatch={dispatch} gun={gun} default path="/" />
             <Match path="/:roomId" />
         </Router>
     );

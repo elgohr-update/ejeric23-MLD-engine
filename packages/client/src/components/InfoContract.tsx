@@ -31,7 +31,7 @@ const InfoContract = () => {
 
 	useEffect(() => {
 		getDonationStored();
-	}, []);
+	}, [contract]);
 
 	useEffect(() => {
 		if (!account) {

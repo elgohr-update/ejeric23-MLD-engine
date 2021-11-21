@@ -32,15 +32,15 @@ const customStyles = {
   };
 
 
-const Account = () => {
+const Account = (props: any) => {
     const [modalIsOpen, setModalIsOpen] = useState(false);
-    const { account, active } = useWeb3React();
+    // const { account, active } = useWeb3React();
 
-    const parsedAccount = account && !isBech32Address(account) ? toBech32(account) : account;
+    const parsedAccount = props.account && !isBech32Address(props.account) ? toBech32(props.account) : props.account;
 
     const openModal = () => {
         setModalIsOpen(true);
-        console.log('Account: ', account);
+        console.log('Account: ', props.account);
     };
 
     const closeModal = () => {
@@ -56,7 +56,7 @@ const Account = () => {
                 onRequestClose={closeModal}
                 shouldCloseOnOverlayClick
             >
-                {active ? (
+                {props.active ? (
                     <SignOut account={parsedAccount} closeModal={closeModal} />
                 ) : (
                     <Wallets closeModal={closeModal} />
