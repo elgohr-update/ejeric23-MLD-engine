@@ -33,7 +33,8 @@
     "serve": "yarn workspace @tosios/server serve"
   },
   "dependencies": {
-    "concurrently": "^4.1.1"
+    "concurrently": "^4.1.1",
+    "prismjs": "^1.25.0"
   },
   "devDependencies": {
     "typescript": "^3.5.3"

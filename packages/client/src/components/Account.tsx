@@ -24,14 +24,23 @@ import Wallets from './Wallets';
 
 if (process.env.NODE_ENV !== 'test') Modal.setAppElement('#root');
 
-const Account = () => {
-    const [modalIsOpen, setModalIsOpen] = useState(false);
-    const { account, active } = useWeb3React();
+const customStyles = {
+    content: {
+      height: "40%",
+      textAlign: "center"
+    }
+  };
 
-    const parsedAccount = account && !isBech32Address(account) ? toBech32(account) : account;
+
+const Account = (props: any) => {
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+    // const { account, active } = useWeb3React();
+
+    const parsedAccount = props.account && !isBech32Address(props.account) ? toBech32(props.account) : props.account;
 
     const openModal = () => {
         setModalIsOpen(true);
+        console.log('Account: ', props.account);
     };
 
     const closeModal = () => {
@@ -40,6 +49,19 @@ const Account = () => {
 
     return (
         <>
+            <Modal
+                isOpen={modalIsOpen}
+                className="Modal"
+                // overlayClassName="Overlay"
+                onRequestClose={closeModal}
+                shouldCloseOnOverlayClick
+            >
+                {props.active ? (
+                    <SignOut account={parsedAccount} closeModal={closeModal} />
+                ) : (
+                    <Wallets closeModal={closeModal} />
+                )}
+            </Modal>
             <AccountComponent onClick={openModal}>
                 {parsedAccount ? (
                     <span>
@@ -50,19 +72,6 @@ const Account = () => {
                     <Button onClick={openModal}>Connect your wallet</Button>
                 )}
             </AccountComponent>
-            <Modal
-                isOpen={modalIsOpen}
-                className="Modal"
-                overlayClassName="Overlay"
-                onRequestClose={closeModal}
-                shouldCloseOnOverlayClick
-            >
-                {active ? (
-                    <SignOut account={parsedAccount} closeModal={closeModal} />
-                ) : (
-                    <Wallets closeModal={closeModal} />
-                )}
-            </Modal>
         </>
     );
 };

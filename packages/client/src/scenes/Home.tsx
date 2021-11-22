@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import {
     Box,
     Button,
@@ -18,10 +19,11 @@ import { RouteComponentProps, navigate } from '@reach/router';
 import { dinoImage, mldImage } from '../images';
 import { Client } from 'colyseus.js';
 import { Helmet } from 'react-helmet';
+import Nav from '../components/Navbar';
 import { RoomAvailable } from 'colyseus.js/lib/Room';
 import qs from 'querystringify';
 import { useAnalytics } from '../hooks';
-import Wallet from '../components/Header';
+import { useWeb3React } from '@web3-react/core';
 
 const MapsList: IListItem[] = Constants.MAPS_NAMES.map((value) => ({
     value,
@@ -38,7 +40,25 @@ const GameModesList: IListItem[] = Constants.GAME_MODES.map((value) => ({
     title: value,
 }));
 
-interface IProps extends RouteComponentProps {}
+interface IProps extends RouteComponentProps {
+    gun: any;
+    dispatch: any;
+    state: any;
+}
+
+interface IAppState {
+    user: any;
+}
+
+const initialState: IAppState = {
+    user: {},
+};
+
+export function reducer(state: any, user: any) {
+    return {
+        user: [user, ...state.user],
+    };
+}
 
 interface IState {
     playerName: string;
@@ -50,83 +70,85 @@ interface IState {
     mode: any;
     rooms: Array<RoomAvailable<any>>;
     timer: NodeJS.Timeout | null;
+    walletLogged: boolean;
 }
 
-export default class Home extends Component<IProps, IState> {
-    private client?: Client;
-
-    constructor(props: IProps) {
-        super(props);
-
-        this.state = {
-            playerName: localStorage.getItem('playerName') || '',
-            hasNameChanged: false,
-            isNewRoom: false,
-            roomName: localStorage.getItem('roomName') || '',
-            roomMap: MapsList[0].value,
-            roomMaxPlayers: PlayersCountList[0].value,
-            mode: GameModesList[0].value,
-            rooms: [],
-            timer: null,
-        };
-    }
+export default function Home<IProps, IState>(props: any): React.ReactElement {
+    const [playerName, setPlayerName] = React.useState(props.state.user.username);
+    const [hasNameChanged, setHasNameChanged] = React.useState(false);
+    const [isNewRoom, setIsNewRoom] = React.useState(false);
+    const [roomName, setRoomName] = React.useState(localStorage.getItem('roomName') || '');
+    const [roomMap, setRoomMap] = React.useState(MapsList[0].value as string);
+    const [roomMaxPlayers, setRoomMaxPlayers] = React.useState(PlayersCountList[0].value as number);
+    const [mode, setMode] = React.useState(GameModesList[0].value as any);
+    const [rooms, setRooms] = React.useState([]);
+    const [timer, setTimer] = React.useState(null as any);
+    const [walletLogged, setWalletLogged] = React.useState(false);
+    const [client, setClient] = React.useState(null as any);
+    const { account, active } = useWeb3React();
 
     // BASE
-    componentDidMount() {
+    const updateRooms = async () => {
+        if (!client) {
+            return;
+        }
+
+        const allRooms = await client.getAvailableRooms(Constants.ROOM_NAME);
+        setRooms(allRooms);
+    };
+
+    React.useEffect(() => {
         try {
             const host = window.document.location.host.replace(/:.*/, '');
             const port = process.env.NODE_ENV !== 'production' ? Constants.WS_PORT : window.location.port;
             const url = `${window.location.protocol.replace('http', 'ws')}//${host}${port ? `:${port}` : ''}`;
 
-            this.client = new Client(url);
-            this.setState(
-                {
-                    timer: setInterval(this.updateRooms, Constants.ROOM_REFRESH),
-                },
-                this.updateRooms,
-            );
+            const cli = new Client(url);
+            setClient(cli);
+
+            const user = props.gun.get('user')
+            // user
+            console.log(user);
+            setTimer(setInterval(updateRooms, Constants.ROOM_REFRESH));
         } catch (error) {
             console.error(error);
         }
-    }
+    }, [setTimer]);
 
-    componentWillUnmount() {
-        const { timer } = this.state;
-
+    React.useEffect(() => {
         if (timer) {
             clearInterval(timer);
         }
-    }
+    }, [timer, setTimer]);
 
     // HANDLERS
-    handlePlayerNameChange = (event: any) => {
-        this.setState({
-            playerName: event.target.value,
-            hasNameChanged: true,
-        });
+    const handlePlayerNameChange = (event: any) => {
+        setPlayerName(event.target.value);
+        setHasNameChanged(true);
     };
 
-    handleNameSave = () => {
-        const { playerName } = this.state;
+    const handleNameSave = () => {
         const analytics = useAnalytics();
 
-        localStorage.setItem('playerName', playerName);
-        this.setState({
-            hasNameChanged: false,
+        // localStorage.setItem('playerName', playerName);
+        setHasNameChanged(false);
+        const user = props.gun.get('user');
+        user.set({
+            wallet: account,
+            userName: playerName,
+            createdAt: Date.now(),
         });
-
         analytics.track({ category: 'User', action: 'Rename' });
     };
 
-    handleRoomNameChange = (event: any) => {
-        const roomName = event.target.value;
+    const handleRoomNameChange = (event: any) => {
+        const newRoomName = event.target.value;
         localStorage.setItem('roomName', roomName);
-        this.setState({
-            roomName,
-        });
+
+        setRoomName(newRoomName);
     };
 
-    handleRoomClick = (roomId: string) => {
+    const handleRoomClick = (roomId: string) => {
         const analytics = useAnalytics();
 
         analytics.track({
@@ -137,8 +159,7 @@ export default class Home extends Component<IProps, IState> {
         navigate(`/${roomId}`);
     };
 
-    handleCreateRoomClick = () => {
-        const { playerName, roomName, roomMap, roomMaxPlayers, mode } = this.state;
+    const handleCreateRoomClick = () => {
         const analytics = useAnalytics();
 
         const options: Types.IRoomOptions = {
@@ -154,70 +175,13 @@ export default class Home extends Component<IProps, IState> {
         navigate(`/new${qs.stringify(options, true)}`);
     };
 
-    handleCancelRoomClick = () => {
-        this.setState({
-            isNewRoom: false,
-        });
+    const handleCancelRoomClick = () => {
+        setIsNewRoom(false);
     };
 
     // METHODS
-    updateRooms = async () => {
-        if (!this.client) {
-            return;
-        }
 
-        const rooms = await this.client.getAvailableRooms(Constants.ROOM_NAME);
-        this.setState({
-            rooms,
-        });
-    };
-
-    // RENDER
-    render() {
-        return (
-            <View
-                flex
-                center
-                style={{
-                    padding: 32,
-                    flexDirection: 'column',
-                }}
-            >
-                <Helmet>
-                    <title>{`${Constants.APP_TITLE} - Home`}</title>
-                    <meta
-                        name="description"
-                        content="The Open-Source IO Shooter is an open-source multiplayer game in the browser meant to be hostable, modifiable, and playable by anyone."
-                    />
-                </Helmet>
-
-                <View
-                    flex
-                    center
-                    column
-                    style={{
-                        width: 700,
-                        maxWidth: '100%',
-                    }}
-                >
-                    <img alt="TOSIOS" src={mldImage} width={300}/>
-                    <Text style={{ color: 'white', fontSize: 13, flex: 'auto' }}>
-                        A multiplayer blockchain game powered by Harmony meant to be playable by anyone and build a community.
-                    </Text>
-                    <Space size="xxs" />
-                </View>
-
-                <Space size="m" />
-                {this.renderName()}
-                <Space size="m" />
-                {/* {this.renderRoom()} */}
-                <Space size="m" />
-                <GitHub />
-            </View>
-        );
-    }
-
-    renderName = () => {
+    const renderName = () => {
         return (
             <Box
                 style={{
@@ -228,27 +192,26 @@ export default class Home extends Component<IProps, IState> {
                 <View flex>
                     <img src={dinoImage} alt="player" width={30} />
                     <Inline size="thin" />
-                    <Text>Pick your name:</Text>
+                    {/* <Text>Pick your name:</Text> */}
                 </View>
                 {/* <Space size="xs" /> */}
-                <Wallet />
-                {/* <Input
-                    value={this.state.playerName}
+                <Input
+                    value={playerName}
                     placeholder="Name"
                     maxLength={Constants.PLAYER_NAME_MAX}
-                    onChange={this.handlePlayerNameChange}
-                /> */}
-                {this.state.hasNameChanged && (
+                    onChange={handlePlayerNameChange}
+                />
+                {hasNameChanged && (
                     <>
                         <Space size="xs" />
-                        <Button title="Save" text="Save" onClick={this.handleNameSave} />
+                        <Button title="Save" text="Save" onClick={handleNameSave} />
                     </>
                 )}
             </Box>
         );
     };
 
-    renderRoom = () => {
+    const renderRoom = () => {
         return (
             <Box
                 style={{
@@ -256,18 +219,22 @@ export default class Home extends Component<IProps, IState> {
                     maxWidth: '100%',
                 }}
             >
-                {this.renderNewRoom()}
+                {renderNewRoom()}
                 <Space size="xxs" />
                 <Separator />
                 <Space size="xxs" />
-                {this.renderRooms()}
+                {renderRooms()}
                 <Space size="xxs" />
             </Box>
         );
     };
 
-    renderNewRoom = () => {
-        const { isNewRoom, roomName, roomMap, roomMaxPlayers, mode } = this.state;
+    const checkGun = () => {
+        const user = props.gun.get('user');
+        console.log(account);
+    };
+
+    const renderNewRoom = () => {
         const analytics = useAnalytics();
 
         return (
@@ -278,13 +245,7 @@ export default class Home extends Component<IProps, IState> {
                     flexDirection: 'column',
                 }}
             >
-                {/* {!isNewRoom && (
-                    <Button
-                        title="Create new room"
-                        text="+ New Room"
-                        onClick={() => this.setState({ isNewRoom: true })}
-                    />
-                )} */}
+                {!isNewRoom && <Button title="Create new room" text="+ New Room" onClick={() => setIsNewRoom(true)} />}
                 {isNewRoom && (
                     <View style={{ width: '100%' }}>
                         {/* Name */}
@@ -294,7 +255,7 @@ export default class Home extends Component<IProps, IState> {
                             placeholder="Name"
                             value={roomName}
                             maxLength={Constants.ROOM_NAME_MAX}
-                            onChange={this.handleRoomNameChange}
+                            onChange={handleRoomNameChange}
                         />
                         <Space size="s" />
 
@@ -305,7 +266,7 @@ export default class Home extends Component<IProps, IState> {
                             value={roomMap}
                             values={MapsList}
                             onChange={(event: any) => {
-                                this.setState({ roomMap: event.target.value });
+                                setRoomMap(event.target.value);
                                 analytics.track({
                                     category: 'Game',
                                     action: 'Map',
@@ -322,7 +283,7 @@ export default class Home extends Component<IProps, IState> {
                             value={roomMaxPlayers}
                             values={PlayersCountList}
                             onChange={(event: any) => {
-                                this.setState({ roomMaxPlayers: event.target.value });
+                                setRoomMaxPlayers(event.target.value);
                                 analytics.track({
                                     category: 'Game',
                                     action: 'Players',
@@ -339,7 +300,7 @@ export default class Home extends Component<IProps, IState> {
                             value={mode}
                             values={GameModesList}
                             onChange={(event: any) => {
-                                this.setState({ mode: event.target.value });
+                                setMode(event.target.value);
                                 analytics.track({
                                     category: 'Game',
                                     action: 'Mode',
@@ -351,9 +312,9 @@ export default class Home extends Component<IProps, IState> {
 
                         {/* Button */}
                         <View>
-                            <Button title="Create room" text="Create" onClick={this.handleCreateRoomClick} />
+                            <Button title="Create room" text="Create" onClick={handleCreateRoomClick} />
                             <Space size="xs" />
-                            <Button title="Cancel" text="Cancel" reversed onClick={this.handleCancelRoomClick} />
+                            <Button title="Cancel" text="Cancel" reversed onClick={handleCancelRoomClick} />
                         </View>
                     </View>
                 )}
@@ -361,9 +322,7 @@ export default class Home extends Component<IProps, IState> {
         );
     };
 
-    renderRooms = () => {
-        const { rooms } = this.state;
-
+    const renderRooms = () => {
         if (!rooms || !rooms.length) {
             return (
                 <View
@@ -381,7 +340,7 @@ export default class Home extends Component<IProps, IState> {
             );
         }
 
-        return rooms.map(({ roomId, metadata, clients, maxClients }, index) => {
+        return rooms.map(({ roomId, metadata, clients, maxClients }: any, index) => {
             const map = MapsList.find((item) => item.value === metadata.roomMap);
             const mapName = map ? map.title : metadata.roomMap;
 
@@ -394,11 +353,57 @@ export default class Home extends Component<IProps, IState> {
                         clients={clients}
                         maxClients={maxClients}
                         mode={metadata.mode}
-                        onClick={this.handleRoomClick}
+                        onClick={handleRoomClick}
                     />
                     {index !== rooms.length - 1 && <Space size="xxs" />}
                 </Fragment>
             );
         });
     };
+
+    // RENDER
+    return (
+        <View
+            flex
+            center
+            style={{
+                padding: 32,
+                flexDirection: 'column',
+            }}
+        >
+            <Nav account={account} active={active} />
+            {/* <Button title="Check gun" onClick={checkGun} /> */}
+            <Helmet>
+                <title>{`${Constants.APP_TITLE} - Home`}</title>
+                <meta
+                    name="description"
+                    content="The Open-Source IO Shooter is an open-source multiplayer game in the browser meant to be hostable, modifiable, and playable by anyone."
+                />
+            </Helmet>
+
+            <View
+                flex
+                center
+                column
+                style={{
+                    width: 700,
+                    maxWidth: '100%',
+                }}
+            >
+                <img alt="TOSIOS" src={mldImage} width={300} />
+                <Text style={{ color: 'white', fontSize: 13, flex: 'auto' }}>
+                    A multiplayer blockchain game powered by Harmony meant to be playable by anyone and build a
+                    community.
+                </Text>
+                <Space size="xxs" />
+            </View>
+
+            <Space size="m" />
+            {renderName()}
+            <Space size="m" />
+            {renderRoom()}
+            <Space size="m" />
+            <GitHub />
+        </View>
+    );
 }
