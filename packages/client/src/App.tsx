@@ -5,24 +5,15 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useAnalytics } from './hooks';
 import { useLocation } from '@reach/router';
 import * as web3 from '@solana/web3.js';
-import { ConnectionProvider, WalletProvider, useConnection, useWallet } from '@solana/wallet-adapter-react';
-import {
-    getPhantomWallet,
-    getSolflareWallet,
-} from '@solana/wallet-adapter-wallets';
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
+import { getPhantomWallet, getSolflareWallet } from '@solana/wallet-adapter-wallets';
 import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+
 require('@solana/wallet-adapter-react-ui/styles.css');
 
 interface IAppState {
     user: any;
 }
-
-declare global {
-    interface Window {
-        FB: any;
-    }
-}
-let FB = window.FB; // ok now
 
 const initialState: IAppState = {
     user: {},
@@ -37,8 +28,7 @@ export function reducer(state: any, user: any) {
 export default function App(): React.ReactElement {
     const network = 'devnet';
     const endpoint = web3.clusterApiUrl(network);
-    const wallets = useMemo(() => [getPhantomWallet(), getSolflareWallet()], [network]);
-    const [account, setAccount] = useState(null);
+    const wallets = useMemo(() => [getPhantomWallet(), getSolflareWallet()], []);
 
     // UseEffects
     useEffect(() => {

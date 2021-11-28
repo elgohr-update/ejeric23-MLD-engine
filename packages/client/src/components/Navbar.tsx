@@ -1,9 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/jsx-props-no-spreading */
 import { Box, Button, Flex, Link, Stack, Text } from '@chakra-ui/react';
-import Account from './Account';
 import { WalletModalProvider, WalletDisconnectButton, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import Balance from './Balance';
 import React from 'react';
 
 const NavBar = (props: any) => {
@@ -46,15 +44,15 @@ const MenuToggle = ({ toggle, isOpen }: any) => {
 };
 
 // eslint-disable-next-line react/prop-types
-const MenuItem = ({ children, isLast, to = '/', ...rest }: any) => {
-    return (
-        <Link href={to}>
-            <Text display="block" {...rest}>
-                {children}
-            </Text>
-        </Link>
-    );
-};
+// const MenuItem = ({ children, isLast, ...rest }: any) => {
+//     return (
+//         <Link href={to}>
+//             <Text display="block" {...rest}>
+//                 {children}
+//             </Text>
+//         </Link>
+//     );
+// };
 
 const MenuLinks = ({ isOpen, account, active }: any) => {
     return (
