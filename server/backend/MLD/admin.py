@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import User
 
-# Register your models here.
+class MLDAdmin(admin.ModelAdmin):
+    list_display = ('username', 'walletAddress', 'gamesWon')
+
+admin.site.register(User, MLDAdmin)
