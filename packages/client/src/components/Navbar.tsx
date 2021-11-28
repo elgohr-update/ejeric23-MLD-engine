@@ -14,7 +14,7 @@ const NavBar = (props: any) => {
     return (
         // eslint-disable-next-line react/jsx-props-no-spreading
         <NavBarContainer {...props}>
-            <MenuToggle toggle={toggle} isOpen={isOpen} />
+            <MenuToggle toggle={toggle} isOpen={isOpen} transparent/>
             <MenuLinks account={props.account} active={props.active} isOpen={isOpen} />
         </NavBarContainer>
     );
@@ -66,10 +66,7 @@ const MenuLinks = ({ isOpen, account, active }: any) => {
                 direction={['column', 'row', 'row', 'row']}
                 pt={[4, 4, 0, 0]}
             >
-                {/* <Balance /> */}
-
                 <WalletMultiButton />
-                <WalletDisconnectButton />
             </Stack>
         </Box>
     );
