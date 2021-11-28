@@ -2,6 +2,7 @@
     "name": "@tosios/client",
     "version": "0.15.0",
     "private": true,
+    "proxy": "http://localhost:8000",
     "dependencies": {
         "@chakra-ui/react": "^1.7.2",
         "@emotion/react": "^11.6.0",
@@ -21,7 +22,6 @@
         "add": "^2.0.6",
         "colyseus.js": "^0.14.0",
         "framer-motion": "4.1.17",
-        "gun": "^0.2020.1235",
         "howler": "^2.2.1",
         "pixi-particles": "^4.2.0",
         "pixi-viewport": "^4.5.0",

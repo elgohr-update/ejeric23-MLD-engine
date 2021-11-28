@@ -1,14 +1,9 @@
 import { LocationProvider, Router } from '@reach/router';
-import Gun from 'gun';
 import Home from './scenes/Home';
 import Match from './scenes/Match';
 import React from 'react';
 import { useAnalytics } from './hooks';
 import { useLocation } from '@reach/router';
-
-const gun = Gun({
-    peers: ['http://localhost:3030/gun'],
-});
 
 interface IAppState {
     user: any;
@@ -53,7 +48,7 @@ function RootedApp(): React.ReactElement {
 
     return (
         <Router>
-            <Home state={state} dispatch={dispatch} gun={gun} default path="/" />
+            <Home state={state} dispatch={dispatch} default path="/" />
             <Match path="/:roomId" />
         </Router>
     );
