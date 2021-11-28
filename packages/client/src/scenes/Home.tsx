@@ -41,7 +41,6 @@ const GameModesList: IListItem[] = Constants.GAME_MODES.map((value) => ({
 }));
 
 interface IProps extends RouteComponentProps {
-    gun: any;
     dispatch: any;
     state: any;
 }
@@ -106,7 +105,7 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
             const cli = new Client(url);
             setClient(cli);
 
-            const user = props.gun.get('user')
+            const user = props.get('user')
             // user
             console.log(user);
             setTimer(setInterval(updateRooms, Constants.ROOM_REFRESH));
@@ -132,7 +131,7 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
 
         // localStorage.setItem('playerName', playerName);
         setHasNameChanged(false);
-        const user = props.gun.get('user');
+        const user = props.get('user');
         user.set({
             wallet: account,
             userName: playerName,
@@ -229,10 +228,6 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
         );
     };
 
-    const checkGun = () => {
-        const user = props.gun.get('user');
-        console.log(account);
-    };
 
     const renderNewRoom = () => {
         const analytics = useAnalytics();
