@@ -23,7 +23,6 @@ import Nav from '../components/Navbar';
 import { RoomAvailable } from 'colyseus.js/lib/Room';
 import qs from 'querystringify';
 import { useAnalytics } from '../hooks';
-import { useWeb3React } from '@web3-react/core';
 
 const MapsList: IListItem[] = Constants.MAPS_NAMES.map((value) => ({
     value,
@@ -41,17 +40,13 @@ const GameModesList: IListItem[] = Constants.GAME_MODES.map((value) => ({
 }));
 
 interface IProps extends RouteComponentProps {
-    dispatch: any;
-    state: any;
+    walletAddress: string;
 }
 
 interface IAppState {
     user: any;
 }
 
-const initialState: IAppState = {
-    user: {},
-};
 
 export function reducer(state: any, user: any) {
     return {
@@ -73,7 +68,7 @@ interface IState {
 }
 
 export default function Home<IProps, IState>(props: any): React.ReactElement {
-    const [playerName, setPlayerName] = React.useState(props.state.user.username);
+    const [playerName, setPlayerName] = React.useState(localStorage.getItem('playerName') || '');
     const [hasNameChanged, setHasNameChanged] = React.useState(false);
     const [isNewRoom, setIsNewRoom] = React.useState(false);
     const [roomName, setRoomName] = React.useState(localStorage.getItem('roomName') || '');
@@ -84,7 +79,6 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
     const [timer, setTimer] = React.useState(null as any);
     const [walletLogged, setWalletLogged] = React.useState(false);
     const [client, setClient] = React.useState(null as any);
-    const { account, active } = useWeb3React();
 
     // BASE
     const updateRooms = async () => {
@@ -105,9 +99,7 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
             const cli = new Client(url);
             setClient(cli);
 
-            const user = props.get('user')
             // user
-            console.log(user);
             setTimer(setInterval(updateRooms, Constants.ROOM_REFRESH));
         } catch (error) {
             console.error(error);
@@ -131,12 +123,6 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
 
         // localStorage.setItem('playerName', playerName);
         setHasNameChanged(false);
-        const user = props.get('user');
-        user.set({
-            wallet: account,
-            userName: playerName,
-            createdAt: Date.now(),
-        });
         analytics.track({ category: 'User', action: 'Rename' });
     };
 
@@ -366,8 +352,7 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
                 flexDirection: 'column',
             }}
         >
-            <Nav account={account} active={active} />
-            {/* <Button title="Check gun" onClick={checkGun} /> */}
+            <Nav flex />
             <Helmet>
                 <title>{`${Constants.APP_TITLE} - Home`}</title>
                 <meta

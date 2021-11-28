@@ -2,6 +2,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { Box, Button, Flex, Link, Stack, Text } from '@chakra-ui/react';
 import Account from './Account';
+import { WalletModalProvider, WalletDisconnectButton, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import Balance from './Balance';
 import React from 'react';
 
@@ -67,7 +68,8 @@ const MenuLinks = ({ isOpen, account, active }: any) => {
             >
                 {/* <Balance /> */}
 
-                <Account account={account} active={active} />
+                <WalletMultiButton />
+                <WalletDisconnectButton />
             </Stack>
         </Box>
     );
