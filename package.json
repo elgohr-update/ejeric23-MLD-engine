@@ -29,7 +29,7 @@
     "build:client": "yarn workspace @tosios/client build",
     "build:server": "yarn workspace @tosios/server build",
     "build:move": "cp -R ./packages/client/build ./packages/server/build/public",
-    "build": "yarn build:common && yarn build:client && yarn build:server && yarn build:move",
+    "build": "yarn build:common && yarn build:client && yarn build:server && yarn build:move; yarn start",
     "serve": "yarn workspace @tosios/server serve"
   },
   "dependencies": {
