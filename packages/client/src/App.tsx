@@ -1,14 +1,15 @@
 import { LocationProvider, Router } from '@reach/router';
-import Gun from 'gun';
 import Home from './scenes/Home';
 import Match from './scenes/Match';
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useAnalytics } from './hooks';
 import { useLocation } from '@reach/router';
+import * as web3 from '@solana/web3.js';
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
+import { getPhantomWallet, getSolflareWallet } from '@solana/wallet-adapter-wallets';
+import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
-const gun = Gun({
-    peers: ['http://localhost:3030/gun'],
-});
+require('@solana/wallet-adapter-react-ui/styles.css');
 
 interface IAppState {
     user: any;
@@ -25,10 +26,27 @@ export function reducer(state: any, user: any) {
 }
 
 export default function App(): React.ReactElement {
+    const network = 'devnet';
+    const endpoint = web3.clusterApiUrl(network);
+    const wallets = useMemo(() => [getPhantomWallet(), getSolflareWallet()], []);
+
+    // UseEffects
+    useEffect(() => {
+        // window.addEventListener('load', async (event) => {
+        //     await checkIfWalletIsConnected();
+        // });
+    }, []);
+
     return (
-        <LocationProvider>
-            <RootedApp />
-        </LocationProvider>
+        <ConnectionProvider endpoint={endpoint}>
+            <WalletProvider wallets={wallets} autoConnect>
+                <WalletModalProvider logo={require('./images/mld.png')}>
+                    <LocationProvider>
+                        <RootedApp />
+                    </LocationProvider>
+                </WalletModalProvider>
+            </WalletProvider>
+        </ConnectionProvider>
     );
 }
 
@@ -40,7 +58,7 @@ function RootedApp(): React.ReactElement {
     /**
      * Initialize analytics.
      */
-     React.useEffect(() => {
+    React.useEffect(() => {
         analytics.init();
     }, [analytics]);
 
@@ -53,7 +71,7 @@ function RootedApp(): React.ReactElement {
 
     return (
         <Router>
-            <Home state={state} dispatch={dispatch} gun={gun} default path="/" />
+            <Home default path="/" />
             <Match path="/:roomId" />
         </Router>
     );

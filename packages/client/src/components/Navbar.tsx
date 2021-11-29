@@ -1,8 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/jsx-props-no-spreading */
 import { Box, Button, Flex, Link, Stack, Text } from '@chakra-ui/react';
-import Account from './Account';
-import Balance from './Balance';
+import { WalletModalProvider, WalletDisconnectButton, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import React from 'react';
 
 const NavBar = (props: any) => {
@@ -13,7 +12,7 @@ const NavBar = (props: any) => {
     return (
         // eslint-disable-next-line react/jsx-props-no-spreading
         <NavBarContainer {...props}>
-            <MenuToggle toggle={toggle} isOpen={isOpen} />
+            <MenuToggle toggle={toggle} isOpen={isOpen} transparent/>
             <MenuLinks account={props.account} active={props.active} isOpen={isOpen} />
         </NavBarContainer>
     );
@@ -45,15 +44,15 @@ const MenuToggle = ({ toggle, isOpen }: any) => {
 };
 
 // eslint-disable-next-line react/prop-types
-const MenuItem = ({ children, isLast, to = '/', ...rest }: any) => {
-    return (
-        <Link href={to}>
-            <Text display="block" {...rest}>
-                {children}
-            </Text>
-        </Link>
-    );
-};
+// const MenuItem = ({ children, isLast, ...rest }: any) => {
+//     return (
+//         <Link href={to}>
+//             <Text display="block" {...rest}>
+//                 {children}
+//             </Text>
+//         </Link>
+//     );
+// };
 
 const MenuLinks = ({ isOpen, account, active }: any) => {
     return (
@@ -65,9 +64,7 @@ const MenuLinks = ({ isOpen, account, active }: any) => {
                 direction={['column', 'row', 'row', 'row']}
                 pt={[4, 4, 0, 0]}
             >
-                {/* <Balance /> */}
-
-                <Account account={account} active={active} />
+                <WalletMultiButton />
             </Stack>
         </Box>
     );

@@ -17,13 +17,14 @@ import { Constants, Types } from '@tosios/common';
 import React, { Component, Fragment } from 'react';
 import { RouteComponentProps, navigate } from '@reach/router';
 import { dinoImage, mldImage } from '../images';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { Client } from 'colyseus.js';
 import { Helmet } from 'react-helmet';
 import Nav from '../components/Navbar';
 import { RoomAvailable } from 'colyseus.js/lib/Room';
 import qs from 'querystringify';
 import { useAnalytics } from '../hooks';
-import { useWeb3React } from '@web3-react/core';
+import * as web3 from '@solana/web3.js';
 
 const MapsList: IListItem[] = Constants.MAPS_NAMES.map((value) => ({
     value,
@@ -41,18 +42,13 @@ const GameModesList: IListItem[] = Constants.GAME_MODES.map((value) => ({
 }));
 
 interface IProps extends RouteComponentProps {
-    gun: any;
-    dispatch: any;
-    state: any;
+    walletAddress: string;
 }
 
 interface IAppState {
     user: any;
 }
 
-const initialState: IAppState = {
-    user: {},
-};
 
 export function reducer(state: any, user: any) {
     return {
@@ -74,7 +70,7 @@ interface IState {
 }
 
 export default function Home<IProps, IState>(props: any): React.ReactElement {
-    const [playerName, setPlayerName] = React.useState(props.state.user.username);
+    const [playerName, setPlayerName] = React.useState(localStorage.getItem('playerName') || '');
     const [hasNameChanged, setHasNameChanged] = React.useState(false);
     const [isNewRoom, setIsNewRoom] = React.useState(false);
     const [roomName, setRoomName] = React.useState(localStorage.getItem('roomName') || '');
@@ -83,9 +79,9 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
     const [mode, setMode] = React.useState(GameModesList[0].value as any);
     const [rooms, setRooms] = React.useState([]);
     const [timer, setTimer] = React.useState(null as any);
-    const [walletLogged, setWalletLogged] = React.useState(false);
     const [client, setClient] = React.useState(null as any);
-    const { account, active } = useWeb3React();
+    const { connection } = useConnection();
+    const { publicKey, sendTransaction } = useWallet();
 
     // BASE
     const updateRooms = async () => {
@@ -105,10 +101,7 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
 
             const cli = new Client(url);
             setClient(cli);
-
-            const user = props.gun.get('user')
             // user
-            console.log(user);
             setTimer(setInterval(updateRooms, Constants.ROOM_REFRESH));
         } catch (error) {
             console.error(error);
@@ -131,13 +124,9 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
         const analytics = useAnalytics();
 
         // localStorage.setItem('playerName', playerName);
+        // publicKey?.toBase58();
+        
         setHasNameChanged(false);
-        const user = props.gun.get('user');
-        user.set({
-            wallet: account,
-            userName: playerName,
-            createdAt: Date.now(),
-        });
         analytics.track({ category: 'User', action: 'Rename' });
     };
 
@@ -229,10 +218,6 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
         );
     };
 
-    const checkGun = () => {
-        const user = props.gun.get('user');
-        console.log(account);
-    };
 
     const renderNewRoom = () => {
         const analytics = useAnalytics();
@@ -371,8 +356,8 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
                 flexDirection: 'column',
             }}
         >
-            <Nav account={account} active={active} />
-            {/* <Button title="Check gun" onClick={checkGun} /> */}
+            <Nav flex />
+            {/* <Button onClick={() => console.log(publicKey?.toBase58())} /> */}
             <Helmet>
                 <title>{`${Constants.APP_TITLE} - Home`}</title>
                 <meta
@@ -392,8 +377,7 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
             >
                 <img alt="TOSIOS" src={mldImage} width={300} />
                 <Text style={{ color: 'white', fontSize: 13, flex: 'auto' }}>
-                    A multiplayer blockchain game powered by Harmony meant to be playable by anyone and build a
-                    community.
+                    NFT game powered by Solana meant to be playable by anyone and build a community.
                 </Text>
                 <Space size="xxs" />
             </View>
