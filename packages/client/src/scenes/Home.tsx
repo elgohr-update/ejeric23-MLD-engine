@@ -82,6 +82,8 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
     const [client, setClient] = React.useState(null as any);
     const { connection } = useConnection();
     const { publicKey, sendTransaction } = useWallet();
+    const axios = require('axios').default;
+
 
     // BASE
     const updateRooms = async () => {
@@ -123,6 +125,20 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
     const handleNameSave = () => {
         const analytics = useAnalytics();
 
+        axios.post('api/users/', {
+            username: playerName,
+            walletAddress: publicKey?.toBase58(),
+            gamesWon: 0
+        })
+          .then(function (response: any) {
+            console.log(response);
+        })
+          .catch(function (error: any) {
+            console.log(error);
+        });
+        
+
+        
         // localStorage.setItem('playerName', playerName);
         // publicKey?.toBase58();
         
