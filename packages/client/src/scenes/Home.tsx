@@ -49,7 +49,6 @@ interface IAppState {
     user: any;
 }
 
-
 export function reducer(state: any, user: any) {
     return {
         user: [user, ...state.user],
@@ -83,7 +82,6 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
     const { connection } = useConnection();
     const { publicKey, sendTransaction } = useWallet();
     const axios = require('axios').default;
-
 
     // BASE
     const updateRooms = async () => {
@@ -125,23 +123,22 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
     const handleNameSave = () => {
         const analytics = useAnalytics();
 
-        axios.post('api/users/', {
-            username: playerName,
-            walletAddress: publicKey?.toBase58(),
-            gamesWon: 0
-        })
-          .then(function (response: any) {
-            console.log(response);
-        })
-          .catch(function (error: any) {
-            console.log(error);
-        });
-        
+        axios
+            .post('api/users/', {
+                username: playerName,
+                walletAddress: publicKey?.toBase58(),
+                gamesWon: 0,
+            })
+            .then(function (response: any) {
+                console.log(response);
+            })
+            .catch(function (error: any) {
+                console.log(error);
+            });
 
-        
         // localStorage.setItem('playerName', playerName);
         // publicKey?.toBase58();
-        
+
         setHasNameChanged(false);
         analytics.track({ category: 'User', action: 'Rename' });
     };
@@ -233,7 +230,6 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
             </Box>
         );
     };
-
 
     const renderNewRoom = () => {
         const analytics = useAnalytics();
@@ -393,15 +389,16 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
             >
                 <img alt="TOSIOS" src={mldImage} width={300} />
                 <Text style={{ color: 'white', fontSize: 13, flex: 'auto' }}>
-                    NFT game powered by Solana meant to be playable by anyone and build a community.
+                    NFT game powered by Solana meant to be playable by
                 </Text>
+                <Text style={{ color: 'white', fontSize: 13, flex: 'auto' }}>anyone and build a community.</Text>
                 <Space size="xxs" />
             </View>
 
             <Space size="m" />
-            {renderName()}
+            {publicKey?.toBase58() ? renderName() : null}
             <Space size="m" />
-            {renderRoom()}
+            {publicKey?.toBase58() ? renderRoom() : null}
             <Space size="m" />
             <GitHub />
         </View>
