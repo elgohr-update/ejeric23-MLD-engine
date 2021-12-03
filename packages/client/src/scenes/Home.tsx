@@ -131,7 +131,7 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
         const analytics = useAnalytics();
 
         axios
-            .post(`http://127.0.0.1:8000/api/users/${publicKey?.toBase58()}`, {
+            .post(`http://127.0.0.1:8000/api/users/`, {
                 username: playerName,
                 walletAddress: publicKey?.toBase58(),
                 gamesWon: 0,
