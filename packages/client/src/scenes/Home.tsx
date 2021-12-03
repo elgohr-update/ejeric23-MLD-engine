@@ -103,10 +103,17 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
             setClient(cli);
             // user
             setTimer(setInterval(updateRooms, Constants.ROOM_REFRESH));
+
+            axios.get(`http://127.0.0.1:8000/api/users/?${publicKey?.toBase58()}`)
+                .then((res: any) => {
+                    console.log(res.data);
+                    setPlayerName(res.data[0].username);
+                })
+
         } catch (error) {
             console.error(error);
         }
-    }, [setTimer]);
+    }, [publicKey, setTimer]);
 
     React.useEffect(() => {
         if (timer) {
@@ -124,7 +131,7 @@ export default function Home<IProps, IState>(props: any): React.ReactElement {
         const analytics = useAnalytics();
 
         axios
-            .post('api/users/', {
+            .post(`http://127.0.0.1:8000/api/users/`, {
                 username: playerName,
                 walletAddress: publicKey?.toBase58(),
                 gamesWon: 0,
