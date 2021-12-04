@@ -1,3 +1,4 @@
+/* eslint-disable sort-imports */
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 import App from './App';
@@ -6,17 +7,10 @@ import ReactDOM from 'react-dom';
 import './styles/globals.css';
 import './styles/Home.module.css';
 import './styles/header.css';
-import { HarmonyProvider } from './context/harmonyContext';
-import { Web3ReactProvider } from '@web3-react/core';
-import { getLibraryProvider } from './utils/provider';
 
 ReactDOM.render(
     <React.StrictMode>
-        <Web3ReactProvider getLibrary={getLibraryProvider}>
-            <HarmonyProvider>
-                <App />
-            </HarmonyProvider>
-        </Web3ReactProvider>
+        <App />
     </React.StrictMode>,
     document.getElementById('root'),
 );

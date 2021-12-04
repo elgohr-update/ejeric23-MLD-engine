@@ -7,6 +7,7 @@ import { GameRoom } from './rooms/GameRoom';
 import { Server } from 'colyseus';
 import { createServer } from 'http';
 import { join } from 'path';
+import { string } from '@colyseus/schema/lib/encoding/decode';
 
 const PORT = Number(process.env.PORT || Constants.WS_PORT);
 
@@ -39,5 +40,11 @@ server.onShutdown(() => {
     console.log(`Shutting down...`);
 });
 
-server.listen(PORT);
+declare let process: {
+    env: {
+        PORT: number;
+    };
+};
+
+server.listen(process.env.PORT || 3000);
 console.log(`Listening on ws://localhost:${PORT}`);
