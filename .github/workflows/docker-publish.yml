@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@master
 
       - name: Build & Publish
-        uses: elgohr/Publish-Docker-Github-Action@master
+        uses: elgohr/Publish-Docker-Github-Action@v5
         env:
           REACT_APP_GA_TRACKING_ID: ${{ secrets.GA_TRACKING_ID }}
         with:
